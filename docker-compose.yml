@@ -1,0 +1,11 @@
+services:
+  review-digest:
+    build: .
+    container_name: review-digest
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8767:8767"
+    volumes:
+      - ./data:/data
+    env_file:
+      - .env

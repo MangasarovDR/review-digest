@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ client.name }} — Индекс доверия</title>
+  <meta name="theme-color" content="#2563EB">
+
+  {% if digest %}
+  <meta property="og:title" content="{{ client.name }} — Индекс доверия {{ digest.average_rating }} из 5">
+  <meta property="og:description" content="По {{ total_reviews }} отзывам{% if platform_names %} с {{ platform_names|join(', ') }}{% endif %}. Обновляется автоматически.">
+  {% else %}
+  <meta property="og:title" content="{{ client.name }} — Индекс доверия">
+  <meta property="og:description" content="Автосводка отзывов, обновляется автоматически.">
+  {% endif %}
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="{{ request.url }}">
+  <meta name="twitter:card" content="summary">
+
+  <style>
+    body { font-family: -apple-system, system-ui, sans-serif; max-width: 480px; margin: 0 auto; padding: 16px; background: #f5f6f8; color: #1a1a1a; }
+    .card { background: #fff; border-radius: 16px; padding: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.08), 0 8px 24px rgba(0,0,0,0.06); }
+    .top { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; margin-bottom: 18px; }
+    .biz-name { font-size: 1.15rem; font-weight: 700; line-height: 1.25; }
+    .period { font-size: 0.8rem; color: #6b7280; margin-top: 2px; }
+    .badge { display: inline-flex; align-items: center; gap: 4px; font-size: 0.75rem; font-weight: 600; padding: 4px 9px; border-radius: 999px; white-space: nowrap; }
+    .badge.up { background: #dcfce7; color: #15803d; }
+    .badge.down { background: #fee2e2; color: #dc2626; }
+    .score-row { display: flex; align-items: baseline; gap: 10px; margin-bottom: 4px; }
+    .score { font-size: 3rem; font-weight: 800; letter-spacing: -0.02em; color: #2563EB; }
+    .score-of { font-size: 1rem; color: #6b7280; }
+    .caption { font-size: 0.8rem; color: #6b7280; margin-bottom: 20px; }
+    .highlight { background: #f5f6f8; border-radius: 10px; padding: 12px 14px; margin-bottom: 10px; font-size: 0.88rem; line-height: 1.45; }
+    .highlight:last-of-type { margin-bottom: 20px; }
+    .highlight .label { display: block; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.06em; color: #6b7280; margin-bottom: 4px; }
+    .highlight.praise .label { color: #15803d; }
+    .highlight.gap .label { color: #dc2626; }
+    .footer-bar { background: linear-gradient(135deg, #2563EB, #4f46e5); color: #fff; text-align: center; padding: 11px 14px; border-radius: 10px; font-size: 0.78rem; line-height: 1.4; }
+    .footer-bar a { color: #fff; font-weight: 700; text-decoration: underline; }
+    .sub { opacity: 0.85; font-size: 0.72rem; margin-top: 2px; }
+    .share-row { display: flex; gap: 8px; margin-top: 14px; }
+    .share-btn { flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px; background: #f5f6f8; border: 1px solid #e5e7eb; color: #1a1a1a; padding: 9px 10px; border-radius: 9px; font-size: 0.8rem; font-weight: 600; cursor: pointer; }
+    .share-btn:hover { background: #eef2ff; }
+    .empty { text-align: center; color: #6b7280; font-size: 0.9rem; padding: 20px 0; }
+    .embed-box { display: none; margin-top: 10px; }
+    .embed-box textarea { width: 100%; font-size: 0.72rem; font-family: ui-monospace, monospace; padding: 8px; border-radius: 8px; border: 1px solid #e5e7eb; resize: none; }
+    .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(20px); background: #1a1a1a; color: #fff; padding: 9px 16px; border-radius: 8px; font-size: 0.82rem; opacity: 0; transition: opacity .2s ease, transform .2s ease; pointer-events: none; }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="top">
+      <div>
+        <div class="biz-name">{{ client.name }}</div>
+        <div class="period">Индекс доверия{% if digest %} · {{ digest_date if digest_date else "" }}{% endif %}</div>
+      </div>
+      {% if trend == "up" %}
+      <span class="badge up">↑ выросла</span>
+      {% elif trend == "down" %}
+      <span class="badge down">↓ снизилась</span>
+      {% endif %}
+    </div>
+
+    {% if digest %}
+    <div class="score-row">
+      <span class="score">{{ digest.average_rating }}</span>
+      <span class="score-of">из 5</span>
+    </div>
+    <div class="caption">По {{ total_reviews }} отзывам{% if platform_names %} · {{ platform_names|join(', ') }}{% endif %}</div>
+
+    {% if digest.top_praises %}
+    <div class="highlight praise">
+      <span class="label">Чаще всего хвалят</span>
+      {{ digest.top_praises[0] }}
+    </div>
+    {% endif %}
+    {% if digest.top_complaints %}
+    <div class="highlight gap">
+      <span class="label">Стоит подтянуть (точки роста)</span>
+      {{ digest.top_complaints[0] }}
+    </div>
+    {% endif %}
+    {% else %}
+    <div class="empty">Сводка появится после первого автообновления.</div>
+    {% endif %}
+
+    <div class="footer-bar">
+      Карточка обновляется автоматически · <a href="https://automatiko.ru/" target="_blank" rel="noopener">Automatiko</a>
+      <div class="sub">Хотите такую же для своего бизнеса? Бесплатно за 2 минуты</div>
+    </div>
+
+    <div class="share-row">
+      <button class="share-btn" type="button" onclick="shareCard()">↗ Поделиться</button>
+      <button class="share-btn" type="button" onclick="toggleEmbed()">&lt;/&gt; Встроить на сайт</button>
+    </div>
+    <div class="embed-box" id="embedBox">
+      <textarea id="embedCode" rows="3" readonly onclick="this.select()"></textarea>
+      <button class="share-btn" type="button" style="margin-top:8px; width:100%" onclick="copyEmbed()">Скопировать код</button>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    const cardUrl = "{{ request.url }}";
+    const toastEl = document.getElementById('toast');
+    function showToast(msg) {
+      toastEl.textContent = msg;
+      toastEl.classList.add('show');
+      setTimeout(() => toastEl.classList.remove('show'), 1800);
+    }
+    function shareCard() {
+      if (navigator.share) {
+        navigator.share({ title: document.title, url: cardUrl }).catch(() => {});
+      } else {
+        navigator.clipboard.writeText(cardUrl).then(() => showToast('Ссылка скопирована'));
+      }
+    }
+    function toggleEmbed() {
+      const box = document.getElementById('embedBox');
+      const shown = box.style.display === 'block';
+      box.style.display = shown ? 'none' : 'block';
+      if (!shown) {
+        document.getElementById('embedCode').value =
+          '<iframe src="' + cardUrl + '" width="380" height="480" style="border:0;border-radius:16px" loading="lazy"></iframe>';
+      }
+    }
+    function copyEmbed() {
+      const ta = document.getElementById('embedCode');
+      ta.select();
+      navigator.clipboard.writeText(ta.value).then(() => showToast('Код скопирован'));
+    }
+  </script>
+</body>
+</html>

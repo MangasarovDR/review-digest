@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Автодайджест отзывов — Automatiko</title>
+  <meta name="theme-color" content="#2563EB">
+  <style>
+    body { font-family: -apple-system, system-ui, sans-serif; max-width: 640px; margin: 0 auto; padding: 16px; background: #f5f6f8; color: #1a1a1a; }
+    .muted { color: #6b7280; font-size: 0.9rem; }
+    .card { background: #fff; border-radius: 12px; padding: 28px 24px; margin: 16px 0; box-shadow: 0 1px 3px rgba(0,0,0,0.08); text-align: center; }
+    h1 { font-size: 1.6rem; margin: 8px 0 4px; }
+    .lead { color: #374151; font-size: 1rem; line-height: 1.6; margin: 16px 0; }
+    .free-badge { display: inline-block; background: #dcfce7; color: #15803d; font-weight: 700; border-radius: 20px; padding: 6px 16px; font-size: 0.95rem; margin: 8px 0 20px; }
+    .cta { display: inline-block; background: #2563EB; color: #fff; text-decoration: none; font-weight: 700; padding: 12px 28px; border-radius: 10px; font-size: 1.05rem; margin-top: 4px; }
+    .cta:hover { background: #1d4ed8; }
+    .features { text-align: left; color: #374151; font-size: 0.9rem; margin: 20px 0; padding-left: 20px; line-height: 1.8; }
+    .automatiko-bar { background: linear-gradient(135deg, #2563EB, #4f46e5); color: #fff; text-align: center; padding: 10px 16px; border-radius: 10px; margin-bottom: 16px; font-size: 0.85rem; line-height: 1.4; }
+    .automatiko-bar a { color: #fff; text-decoration: underline; font-weight: 700; }
+    .automatiko-bar a:hover { opacity: 0.85; }
+    .automatiko-footer { text-align: center; font-size: 0.85rem; color: #6b7280; margin-top: 24px; padding-top: 16px; border-top: 1px solid #e5e7eb; line-height: 1.5; }
+    .automatiko-footer a { color: #2563EB; text-decoration: none; font-weight: 700; }
+    .automatiko-footer a:hover { text-decoration: underline; }
+
+    .example-label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.06em; color: #6b7280; margin: 20px 0 8px; text-align: left; }
+    .example-note { text-align: center; font-size: 0.78rem; color: #6b7280; margin-top: 6px; }
+
+    .gallery { display: flex; gap: 12px; overflow-x: auto; scroll-snap-type: x mandatory; padding: 4px 4px 10px; margin: 0 -4px; -webkit-overflow-scrolling: touch; }
+    .gallery-item { flex: 0 0 86%; scroll-snap-align: center; background: #f5f6f8; border: 1px solid #e5e7eb; border-radius: 12px; padding: 16px 18px; text-align: left; }
+    .gallery-tag { display: inline-block; font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.05em; color: #2563EB; background: #eef2ff; padding: 3px 9px; border-radius: 6px; margin-bottom: 12px; font-weight: 700; }
+    .gallery-hint { text-align: center; font-size: 0.75rem; color: #9ca3af; margin-top: -2px; margin-bottom: 4px; }
+
+    .g-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; margin-bottom: 10px; }
+    .g-biz { font-weight: 700; font-size: 0.95rem; }
+    .g-period { font-size: 0.78rem; color: #6b7280; }
+    .g-score-row { display: flex; align-items: baseline; gap: 6px; margin-bottom: 2px; }
+    .g-score { font-size: 2.1rem; font-weight: 800; color: #2563EB; }
+    .g-score-of { font-size: 0.85rem; color: #6b7280; }
+    .g-caption { font-size: 0.78rem; color: #6b7280; margin-bottom: 14px; }
+    .g-highlight { background: #fff; border: 1px solid #e5e7eb; border-radius: 8px; padding: 9px 11px; font-size: 0.82rem; line-height: 1.4; margin-bottom: 8px; }
+    .g-highlight .tag { display: block; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.05em; color: #15803d; margin-bottom: 2px; }
+    .g-highlight.gap .tag { color: #dc2626; }
+
+    .mini-chart-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; padding-bottom: 2px; }
+    .mini-chart-inner { width: max-content; }
+    .mini-chart { display: flex; align-items: flex-end; gap: 4px; height: 90px; margin: 4px 0 4px; }
+    .mini-chart .bar { width: 9px; flex-shrink: 0; border-radius: 2px 2px 0 0; overflow: hidden; display: flex; flex-direction: column-reverse; background: #fff; border: 1px solid #e5e7eb; border-bottom: none; }
+    .mini-chart .seg.s5 { background: #15803d; }
+    .mini-chart .seg.s4 { background: #84cc16; }
+    .mini-chart .seg.s3 { background: #f59e0b; }
+    .mini-chart-labels { display: flex; gap: 4px; margin-bottom: 10px; }
+    .mini-chart-labels span { width: 9px; flex-shrink: 0; font-size: 0.5rem; color: #9ca3af; writing-mode: vertical-rl; white-space: nowrap; }
+    .mini-chart-hint { font-size: 0.7rem; color: #9ca3af; text-align: center; margin: -2px 0 8px; }
+    .g-legend { display: flex; gap: 8px; font-size: 0.7rem; color: #6b7280; margin-bottom: 4px; }
+    .g-legend i { display: inline-block; width: 8px; height: 8px; border-radius: 2px; margin-right: 3px; vertical-align: middle; }
+
+    .g-reviews-scroll { max-height: 260px; overflow-y: auto; }
+    .g-review { border-bottom: 1px solid #e5e7eb; padding: 9px 0; font-size: 0.83rem; }
+    .g-review:last-child { border-bottom: none; padding-bottom: 0; }
+    .g-review:first-child { padding-top: 0; }
+    .g-review-meta { font-size: 0.75rem; color: #6b7280; margin-bottom: 2px; }
+    .g-platform-tag { display: inline-block; background: #eef2ff; color: #2563EB; border-radius: 6px; padding: 1px 6px; font-size: 0.68rem; margin-right: 6px; }
+    .g-stars { color: #f59e0b; letter-spacing: 1px; font-size: 0.75rem; }
+
+    .how-it-works { margin: 22px 0 6px; text-align: left; }
+    .how-step { display: flex; gap: 10px; margin-bottom: 10px; font-size: 0.85rem; color: #374151; }
+    .how-num { flex-shrink: 0; width: 22px; height: 22px; border-radius: 50%; background: #2563EB; color: #fff; font-size: 0.75rem; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+    .card-link-cta { display: block; text-align: center; margin: 14px 0 4px; padding: 12px 16px; border: 1px dashed #2563EB; border-radius: 10px; color: #2563EB; text-decoration: none; font-weight: 600; font-size: 0.9rem; }
+    .card-link-cta:hover { background: #eef2ff; }
+  </style>
+</head>
+<body>
+  <div class="automatiko-bar">✨ Проект <a href="https://automatiko.ru" target="_blank" rel="noopener">Automatiko.ru</a> — мы делаем AI-инструменты для бизнеса</div>
+
+  <div class="card">
+    <h1>Автодайджест отзывов</h1>
+    <p class="lead">Сервис сам собирает отзывы вашего бизнеса с Яндекс.Карт, 2ГИС и маркетплейсов в одном месте и раз в сутки готовит короткую ИИ-сводку: главные жалобы, похвалы и динамику рейтинга. Не нужно вручную проверять каждую площадку.</p>
+
+    <ul class="features">
+      <li>Все отзывы и площадки — на одной странице, с историей и графиком динамики</li>
+      <li>Ежедневное автоматическое обновление, без ручной работы</li>
+      <li>Доступ по личной ссылке, без регистрации и паролей</li>
+    </ul>
+
+    <div class="example-label">Галерея — что вы реально получаете</div>
+    <div class="gallery" id="gallery">
+
+      <div class="gallery-item">
+        <span class="gallery-tag">1 · Сводка</span>
+        <div class="g-top">
+          <div>
+            <div class="g-biz">Кофейня на Марата</div>
+            <div class="g-period">Индекс доверия · июль 2026</div>
+          </div>
+        </div>
+        <div class="g-score-row">
+          <span class="g-score">4.7</span>
+          <span class="g-score-of">из 5</span>
+        </div>
+        <div class="g-caption">По 214 отзывам за 90 дней · Яндекс.Карты, 2ГИС, Wildberries</div>
+        <div class="g-highlight">
+          <span class="tag">Чаще всего хвалят</span>
+          Скорость обслуживания и бариста Аню — упомянута по имени в 12 отзывах за месяц
+        </div>
+        <div class="g-highlight gap">
+          <span class="tag">Стоит подтянуть (точки роста)</span>
+          Очередь по утрам в будни — 6 упоминаний за июль, было 2 в июне
+        </div>
+      </div>
+
+      <div class="gallery-item">
+        <span class="gallery-tag">2 · Динамика за 3 года</span>
+        <div class="mini-chart-wrap">
+          <div class="mini-chart-inner">
+            <div class="mini-chart">
+              <div class="bar" style="height:21.0px"><div class="seg s5" style="height:7.8px"></div><div class="seg s4" style="height:2.8px"></div><div class="seg s3" style="height:10.3px"></div></div>
+              <div class="bar" style="height:15.8px"><div class="seg s5" style="height:7.9px"></div><div class="seg s4" style="height:3.0px"></div><div class="seg s3" style="height:5.0px"></div></div>
+              <div class="bar" style="height:28.3px"><div class="seg s5" style="height:11.4px"></div><div class="seg s4" style="height:4.4px"></div><div class="seg s3" style="height:12.5px"></div></div>
+              <div class="bar" style="height:15.9px"><div class="seg s5" style="height:6.9px"></div><div class="seg s4" style="height:2.6px"></div><div class="seg s3" style="height:6.3px"></div></div>
+              <div class="bar" style="height:17.4px"><div class="seg s5" style="height:7.7px"></div><div class="seg s4" style="height:3.2px"></div><div class="seg s3" style="height:6.5px"></div></div>
+              <div class="bar" style="height:27.4px"><div class="seg s5" style="height:12.5px"></div><div class="seg s4" style="height:4.8px"></div><div class="seg s3" style="height:10.1px"></div></div>
+              <div class="bar" style="height:33.3px"><div class="seg s5" style="height:14.4px"></div><div class="seg s4" style="height:6.8px"></div><div class="seg s3" style="height:12.1px"></div></div>
+              <div class="bar" style="height:33.1px"><div class="seg s5" style="height:16.4px"></div><div class="seg s4" style="height:4.0px"></div><div class="seg s3" style="height:12.8px"></div></div>
+              <div class="bar" style="height:38.9px"><div class="seg s5" style="height:19.6px"></div><div class="seg s4" style="height:4.4px"></div><div class="seg s3" style="height:14.9px"></div></div>
+              <div class="bar" style="height:14.6px"><div class="seg s5" style="height:6.5px"></div><div class="seg s4" style="height:2.6px"></div><div class="seg s3" style="height:5.5px"></div></div>
+              <div class="bar" style="height:39.7px"><div class="seg s5" style="height:23.3px"></div><div class="seg s4" style="height:6.7px"></div><div class="seg s3" style="height:9.7px"></div></div>
+              <div class="bar" style="height:44.0px"><div class="seg s5" style="height:23.8px"></div><div class="seg s4" style="height:7.6px"></div><div class="seg s3" style="height:12.7px"></div></div>
+              <div class="bar" style="height:43.3px"><div class="seg s5" style="height:25.5px"></div><div class="seg s4" style="height:9.2px"></div><div class="seg s3" style="height:8.6px"></div></div>
+              <div class="bar" style="height:40.8px"><div class="seg s5" style="height:25.0px"></div><div class="seg s4" style="height:4.3px"></div><div class="seg s3" style="height:11.5px"></div></div>
+              <div class="bar" style="height:36.7px"><div class="seg s5" style="height:20.4px"></div><div class="seg s4" style="height:4.1px"></div><div class="seg s3" style="height:12.2px"></div></div>
+              <div class="bar" style="height:38.4px"><div class="seg s5" style="height:20.6px"></div><div class="seg s4" style="height:5.2px"></div><div class="seg s3" style="height:12.6px"></div></div>
+              <div class="bar" style="height:46.5px"><div class="seg s5" style="height:27.4px"></div><div class="seg s4" style="height:6.9px"></div><div class="seg s3" style="height:12.3px"></div></div>
+              <div class="bar" style="height:41.2px"><div class="seg s5" style="height:24.0px"></div><div class="seg s4" style="height:9.1px"></div><div class="seg s3" style="height:8.1px"></div></div>
+              <div class="bar" style="height:49.9px"><div class="seg s5" style="height:32.3px"></div><div class="seg s4" style="height:6.1px"></div><div class="seg s3" style="height:11.5px"></div></div>
+              <div class="bar" style="height:52.8px"><div class="seg s5" style="height:31.0px"></div><div class="seg s4" style="height:7.9px"></div><div class="seg s3" style="height:14.0px"></div></div>
+              <div class="bar" style="height:58.7px"><div class="seg s5" style="height:39.4px"></div><div class="seg s4" style="height:10.1px"></div><div class="seg s3" style="height:9.1px"></div></div>
+              <div class="bar" style="height:55.3px"><div class="seg s5" style="height:39.6px"></div><div class="seg s4" style="height:11.1px"></div><div class="seg s3" style="height:4.7px"></div></div>
+              <div class="bar" style="height:27.3px"><div class="seg s5" style="height:12.1px"></div><div class="seg s4" style="height:3.8px"></div><div class="seg s3" style="height:11.3px"></div></div>
+              <div class="bar" style="height:51.8px"><div class="seg s5" style="height:32.8px"></div><div class="seg s4" style="height:11.5px"></div><div class="seg s3" style="height:7.4px"></div></div>
+              <div class="bar" style="height:63.2px"><div class="seg s5" style="height:41.8px"></div><div class="seg s4" style="height:11.7px"></div><div class="seg s3" style="height:9.8px"></div></div>
+              <div class="bar" style="height:57.1px"><div class="seg s5" style="height:43.7px"></div><div class="seg s4" style="height:9.1px"></div><div class="seg s3" style="height:4.2px"></div></div>
+              <div class="bar" style="height:56.5px"><div class="seg s5" style="height:37.9px"></div><div class="seg s4" style="height:9.8px"></div><div class="seg s3" style="height:8.9px"></div></div>
+              <div class="bar" style="height:58.1px"><div class="seg s5" style="height:42.6px"></div><div class="seg s4" style="height:12.6px"></div><div class="seg s3" style="height:2.9px"></div></div>
+              <div class="bar" style="height:61.9px"><div class="seg s5" style="height:42.4px"></div><div class="seg s4" style="height:14.2px"></div><div class="seg s3" style="height:5.3px"></div></div>
+              <div class="bar" style="height:65.3px"><div class="seg s5" style="height:44.1px"></div><div class="seg s4" style="height:6.9px"></div><div class="seg s3" style="height:14.3px"></div></div>
+              <div class="bar" style="height:60.4px"><div class="seg s5" style="height:46.6px"></div><div class="seg s4" style="height:12.3px"></div><div class="seg s3" style="height:1.6px"></div></div>
+              <div class="bar" style="height:67.1px"><div class="seg s5" style="height:46.3px"></div><div class="seg s4" style="height:10.0px"></div><div class="seg s3" style="height:10.8px"></div></div>
+              <div class="bar" style="height:78.0px"><div class="seg s5" style="height:60.4px"></div><div class="seg s4" style="height:17.6px"></div><div class="seg s3" style="height:0.0px"></div></div>
+              <div class="bar" style="height:77.4px"><div class="seg s5" style="height:54.3px"></div><div class="seg s4" style="height:15.0px"></div><div class="seg s3" style="height:8.1px"></div></div>
+              <div class="bar" style="height:76.1px"><div class="seg s5" style="height:60.6px"></div><div class="seg s4" style="height:10.3px"></div><div class="seg s3" style="height:5.3px"></div></div>
+              <div class="bar" style="height:77.1px"><div class="seg s5" style="height:56.9px"></div><div class="seg s4" style="height:12.1px"></div><div class="seg s3" style="height:8.1px"></div></div>
+            </div>
+            <div class="mini-chart-labels">
+              <span>08.23</span><span></span><span></span><span></span><span></span><span></span>
+              <span>02.24</span><span></span><span></span><span></span><span></span><span></span>
+              <span>08.24</span><span></span><span></span><span></span><span></span><span></span>
+              <span>02.25</span><span></span><span></span><span></span><span></span><span></span>
+              <span>08.25</span><span></span><span></span><span></span><span></span><span></span>
+              <span>02.26</span><span></span><span></span><span></span><span></span>
+              <span>07.26</span>
+            </div>
+          </div>
+        </div>
+        <div class="mini-chart-hint">← Прокрутите, чтобы увидеть всю историю →</div>
+        <div class="g-legend"><span><i style="background:#15803d"></i>5★</span><span><i style="background:#84cc16"></i>4★</span><span><i style="background:#f59e0b"></i>3★</span></div>
+        <div class="g-caption" style="margin-bottom:0">Видно рост или просадку сразу, без разбора сотен отзывов вручную — три года истории, как в реальном личном кабинете. Можно фильтровать по площадке.</div>
+      </div>
+
+      <div class="gallery-item">
+        <span class="gallery-tag">3 · Лента отзывов</span>
+        <div class="g-caption" style="margin-bottom:8px">Все 24 отзыва за 90 дней, с любой площадки, в одной ленте — прокрутите вниз</div>
+        <div class="g-reviews-scroll">
+          <div class="g-review">
+            <div class="g-review-meta"><span class="g-platform-tag">Яндекс.Карты</span>Мария С. · 3 дня назад · <span class="g-stars">★★★★★</span></div>
+            Лучший кофе в округе, а Аня всегда узнаёт в лицо и помнит заказ!
+          </div>
+          <div class="g-review">
+            <div class="g-review-meta"><span class="g-platform-tag">2ГИС</span>Алексей К. · неделю назад · <span class="g-stars">★★★★</span></div>
+            Стало ощутимо быстрее в последний месяц, но очередь по утрам осталась.
+          </div>
+          <div class="g-review">
+            <div class="g-review-meta"><span class="g-platform-tag">Wildberries</span>Ольга В. · 2 недели назад · <span class="g-stars">★★★★★</span></div>
+            Заказывала зёрна на вынос — отличное качество, буду брать ещё.
+          </div>
+          <div class="g-review">
+            <div class="g-review-meta"><span class="g-platform-tag">Яндекс.Карты</span>Дмитрий Р. · 2 недели назад · <span class="g-stars">★★★★★</span></div>
+            Быстро, вкусно, уютно. Работаю здесь с ноутбуком раз в неделю.
+          </div>
+          <div class="g-review">
+            <div class="g-review-meta"><span class="g-platform-tag">2ГИС</span>Анна Т. · 3 недели назад · <span class="g-stars">★★★★</span></div>
+            Очень нравится атмосфера, но по утрам иногда очередь минут на 10.
+          </div>
+          <div class="g-review">
+            <div class="g-review-meta"><span class="g-platform-tag">Яндекс.Карты</span>Иван П. · 3 недели назад · <span class="g-stars">★★★★★</span></div>
+            Аня всегда встречает с улыбкой, кофе прекрасный.
+          </div>
+          <div class="g-review">
+            <div class="g-review-meta"><span class="g-platform-tag">2ГИС</span>Мария С. · месяц назад · <span class="g-stars">★★★★★</span></div>
+            Лучшая кофейня в районе, рекомендую всем.
+          </div>
+          <div class="g-review">
+            <div class="g-review-meta"><span class="g-platform-tag">Wildberries</span>Алексей К. · месяц назад · <span class="g-stars">★★★★</span></div>
+            Хорошие зёрна, доставка быстрая.
+          </div>
+          <div class="g-review">
+            <div class="g-review-meta"><span class="g-platform-tag">Яндекс.Карты</span>Ольга В. · месяц назад · <span class="g-stars">★★★</span></div>
+            Неплохо, но в час пик очень людно.
+          </div>
+          <div class="g-review">
+            <div class="g-review-meta"><span class="g-platform-tag">2ГИС</span>Дмитрий Р. · 5 недель назад · <span class="g-stars">★★★★★</span></div>
+            Уютное место для встреч, вкусный раф.
+          </div>
+          <div class="g-review">
+            <div class="g-review-meta"><span class="g-platform-tag">Яндекс.Карты</span>Анна Т. · 6 недель назад · <span class="g-stars">★★★★</span></div>
+            Вкусно, но не хватает розеток у окна.
+          </div>
+          <div class="g-review">
+            <div class="g-review-meta"><span class="g-platform-tag">Wildberries</span>Иван П. · 6 недель назад · <span class="g-stars">★★★★★</span></div>
+            Заказ пришёл вовремя, зерно свежее и ароматное.
+          </div>
+          <div class="g-review">
+            <div class="g-review-meta"><span class="g-platform-tag">2ГИС</span>Мария С. · 7 недель назад · <span class="g-stars">★★★★★</span></div>
+            Аня и вся команда — супер, всегда приятно зайти.
+          </div>
+          <div class="g-review">
+            <div class="g-review-meta"><span class="g-platform-tag">Яндекс.Карты</span>Алексей К. · 2 месяца назад · <span class="g-stars">★★★★★</span></div>
+            Отличное обслуживание, стало ещё быстрее в последний месяц.
+          </div>
+          <div class="g-review">
+            <div class="g-review-meta"><span class="g-platform-tag">2ГИС</span>Ольга В. · 2 месяца назад · <span class="g-stars">★★★★</span></div>
+            Хорошее место, немного шумно в обеденное время.
+          </div>
+          <div class="g-review">
+            <div class="g-review-meta"><span class="g-platform-tag">Яндекс.Карты</span>Дмитрий Р. · 2 месяца назад · <span class="g-stars">★★★★★</span></div>
+            Хожу сюда каждый день перед работой, всё супер.
+          </div>
+          <div class="g-review">
+            <div class="g-review-meta"><span class="g-platform-tag">Wildberries</span>Анна Т. · 2 месяца назад · <span class="g-stars">★★★★★</span></div>
+            Зёрна отличные, буду заказывать ещё.
+          </div>
+          <div class="g-review">
+            <div class="g-review-meta"><span class="g-platform-tag">2ГИС</span>Иван П. · 2 месяца назад · <span class="g-stars">★★★★</span></div>
+            Хорошо, но очередь по утрам в будни огорчает.
+          </div>
+          <div class="g-review">
+            <div class="g-review-meta"><span class="g-platform-tag">Яндекс.Карты</span>Мария С. · 3 месяца назад · <span class="g-stars">★★★★★</span></div>
+            Прекрасная кофейня, любимое место в районе.
+          </div>
+          <div class="g-review">
+            <div class="g-review-meta"><span class="g-platform-tag">2ГИС</span>Алексей К. · 3 месяца назад · <span class="g-stars">★★★★★</span></div>
+            Отличный сервис и вкусная выпечка каждый день.
+          </div>
+        </div>
+      </div>
+
+    </div>
+    <div class="gallery-hint">← Пролистайте, чтобы увидеть все три экрана →</div>
+    <div class="example-note">Демо-данные, вымышленный бизнес «Кофейня на Марата». Ваша сводка будет собираться по вашим реальным площадкам.</div>
+
+    <a href="https://reviews.automatiko.ru/card/0pp1gPeeQTTm1YhHglwZbw" target="_blank" rel="noopener" class="card-link-cta">📇 Смотреть живой пример карточки, которой можно поделиться →</a>
+
+    <div class="how-it-works">
+      <div class="how-step"><span class="how-num">1</span>Присылаете ссылки на ваши площадки с отзывами — подключаем вручную, бесплатно</div>
+      <div class="how-step"><span class="how-num">2</span>Каждую ночь сервис сам собирает новые отзывы и обновляет сводку и карточку</div>
+      <div class="how-step"><span class="how-num">3</span>У вас появляется готовая ссылка на карточку — просто скопируйте её из своего личного кабинета и вставьте в шапку сайта или пост в соцсетях</div>
+    </div>
+
+    <div style="margin-top:12px"><span class="free-badge">Бесплатно</span></div>
+    <div>
+      <a href="https://t.me/DavidMangasarov" target="_blank" rel="noopener" class="cta">Написать в Telegram за доступом</a>
+    </div>
+    <div class="muted" style="margin-top:14px">Напишите пару слов о бизнесе и ссылки на ваши площадки — подключим вручную.</div>
+  </div>
+
+  <footer class="automatiko-footer">
+    Сделано с теплом в <a href="https://automatiko.ru" target="_blank" rel="noopener">Automatiko</a> — мы делаем AI-инструменты, которые экономят время бизнесу, без воды и переплат. Заходите, у нас есть ещё чем поделиться 👋
+  </footer>
+</body>
+</html>

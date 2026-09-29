@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Админка — Автодайджест отзывов</title>
+  <style>
+    body { font-family: -apple-system, system-ui, sans-serif; max-width: 960px; margin: 0 auto; padding: 16px; background: #f5f6f8; color: #1a1a1a; }
+    h1 { font-size: 1.4rem; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; }
+    a.btn { background: #2563EB; color: #fff; text-decoration: none; padding: 8px 14px; border-radius: 8px; font-size: 0.9rem; }
+    table { width: 100%; border-collapse: collapse; background: #fff; border-radius: 12px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+    th, td { text-align: left; padding: 10px 12px; border-bottom: 1px solid #eee; font-size: 0.9rem; }
+    a.client-name { color: #1a1a1a; text-decoration: none; font-weight: 600; }
+    a.client-name:hover { color: #2563EB; text-decoration: underline; }
+    th { background: #f0f1f3; font-weight: 600; }
+    tr:last-child td { border-bottom: none; }
+    .platform-tag { display: inline-block; background: #eef2ff; color: #2563EB; border-radius: 6px; padding: 1px 6px; font-size: 0.75rem; margin-right: 4px; }
+    .status-tag { font-size: 0.75rem; padding: 1px 7px; border-radius: 6px; white-space: nowrap; }
+    .status-tag.active { background: #dcfce7; color: #15803d; }
+    .status-tag.paused { background: #f3f4f6; color: #6b7280; }
+    tr.paused { opacity: 0.6; }
+    .muted { color: #6b7280; }
+    a.link { color: #2563EB; text-decoration: none; }
+    a.link:hover { text-decoration: underline; }
+    .empty { padding: 24px; text-align: center; color: #6b7280; }
+    .automatiko-bar { background: linear-gradient(135deg, #2563EB, #4f46e5); color: #fff; text-align: center; padding: 10px 16px; border-radius: 10px; margin-bottom: 16px; font-size: 0.85rem; line-height: 1.4; }
+    .automatiko-bar a { color: #fff; text-decoration: underline; font-weight: 700; }
+    .automatiko-bar a:hover { opacity: 0.85; }
+    .automatiko-footer { text-align: center; font-size: 0.85rem; color: #6b7280; margin-top: 24px; padding-top: 16px; border-top: 1px solid #e5e7eb; line-height: 1.5; }
+    .automatiko-footer a { color: #2563EB; text-decoration: none; font-weight: 700; }
+    .automatiko-footer a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <div class="automatiko-bar">✨ Этот сервис — бесплатный подарок от проекта <a href="https://automatiko.ru" target="_blank" rel="noopener">Automatiko.ru</a></div>
+  <h1>Клиенты <a class="btn" href="/admin/new">+ Добавить клиента</a></h1>
+
+  {% if clients %}
+  <table>
+    <thead>
+      <tr>
+        <th>Название</th>
+        <th>Статус</th>
+        <th>Площадки</th>
+        <th>Отзывов</th>
+        <th>Последнее саммари</th>
+        <th>Создан</th>
+        <th>Ссылка</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% set short_labels = {'yandex_maps': 'Я.Карты', '2gis': '2ГИС', 'wildberries': 'WB', 'ozon': 'Ozon'} %}
+      {% for c in clients %}
+      <tr class="{{ 'paused' if not c.scraping_enabled }}">
+        <td><a class="client-name" href="/admin/{{ c.slug }}">{{ c.name }}</a></td>
+        <td>
+          <span class="status-tag {{ 'active' if c.scraping_enabled else 'paused' }}">{{ 'работает' if c.scraping_enabled else 'на паузе' }}</span>
+        </td>
+        <td>
+          {% for p in c.platforms %}<span class="platform-tag">{{ short_labels.get(p, p) }}</span>{% endfor %}
+          {% if not c.platforms %}<span class="muted">нет площадок</span>{% endif %}
+        </td>
+        <td>{{ c.review_count }}</td>
+        <td class="muted">{{ c.last_digest_at[:10] if c.last_digest_at else "ещё нет" }}</td>
+        <td class="muted">{{ c.created_at[:10] }}</td>
+        <td><a class="link" href="/d/{{ c.slug }}" target="_blank">открыть →</a></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <div class="empty">Клиентов пока нет. <a class="link" href="/admin/new">Добавить первого</a>.</div>
+  {% endif %}
+
+  <footer class="automatiko-footer">
+    Сделано с теплом в <a href="https://automatiko.ru" target="_blank" rel="noopener">Automatiko</a> — мы делаем AI-инструменты, которые экономят время бизнесу, без воды и переплат. Заходите, у нас есть ещё чем поделиться 👋
+  </footer>
+</body>
+</html>

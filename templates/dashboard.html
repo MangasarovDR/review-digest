@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Отзывы — {{ client.name }}</title>
+  <link rel="manifest" href="/d/{{ client.slug }}/manifest.json">
+  <link rel="apple-touch-icon" href="/static/icon-192.png">
+  <meta name="theme-color" content="#2563EB">
+  <style>
+    body { font-family: -apple-system, system-ui, sans-serif; max-width: 720px; margin: 0 auto; padding: 16px; background: #f5f6f8; color: #1a1a1a; }
+    h1 { font-size: 1.4rem; margin-bottom: 4px; }
+    .muted { color: #6b7280; font-size: 0.9rem; }
+    .card { background: #fff; border-radius: 12px; padding: 16px; margin: 16px 0; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+    .rating { font-size: 2rem; font-weight: 700; color: #2563EB; }
+    ul { padding-left: 20px; }
+    li { margin-bottom: 6px; }
+    .quote { font-style: italic; color: #374151; border-left: 3px solid #2563EB; padding-left: 10px; margin: 8px 0; }
+    .review { border-bottom: 1px solid #eee; padding: 10px 0; }
+    .review:last-child { border-bottom: none; }
+    .review-meta { font-size: 0.85rem; color: #6b7280; }
+    .platform-tag { display: inline-block; background: #eef2ff; color: #2563EB; border-radius: 6px; padding: 1px 6px; font-size: 0.75rem; margin-right: 6px; }
+    .stars { letter-spacing: 1px; }
+    .stars .star { color: #d1d5db; }
+    .stars .star.filled { color: #f59e0b; }
+    .source-label { color: #6b7280; font-size: 0.8rem; }
+    .source-link { color: #2563EB; text-decoration: none; font-size: 0.8rem; }
+    .source-link:hover { text-decoration: underline; }
+    .load-more { color: #2563EB; text-decoration: none; font-size: 0.9rem; font-weight: 600; }
+    .load-more:hover { text-decoration: underline; }
+    .rating-chart-wrap { display: flex; gap: 6px; }
+    .rating-axis { display: flex; flex-direction: column; justify-content: space-between; height: 210px; font-size: 0.65rem; color: #9ca3af; text-align: right; flex-shrink: 0; }
+    .rating-chart-scroll { overflow-x: auto; padding-bottom: 4px; flex: 1; }
+    .rating-chart { position: relative; display: flex; align-items: flex-end; gap: 3px; min-width: 100%; width: max-content; height: 210px; }
+    .rating-gridline { position: absolute; left: 0; right: 0; border-top: 1px dashed #e5e7eb; }
+    .rating-col { position: relative; display: flex; flex-direction: column; align-items: center; width: 14px; flex-shrink: 0; height: 100%; justify-content: flex-end; z-index: 1; }
+    .rating-bar-track { position: relative; width: 100%; height: 210px; border-bottom: 1px solid #d1d5db; }
+    .rating-bar { position: absolute; bottom: 0; left: 0; right: 0; background: #f3f4f6; border-radius: 2px 2px 0 0; overflow: hidden; min-height: 1px; }
+    .rating-seg { position: absolute; left: 0; right: 0; }
+    .star-5 { background: #15803d; }
+    .star-4 { background: #84cc16; }
+    .star-3 { background: #f59e0b; }
+    .star-2 { background: #f97316; }
+    .star-1 { background: #dc2626; }
+    .rating-col-label { font-size: 0.55rem; color: #9ca3af; margin-top: 4px; writing-mode: vertical-rl; white-space: nowrap; }
+    .rating-legend { display: flex; gap: 10px; margin-top: 10px; font-size: 0.75rem; color: #6b7280; flex-wrap: wrap; }
+    .rating-legend i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 3px; vertical-align: middle; }
+    .channel-filter { display: flex; gap: 12px; margin-top: 10px; padding-top: 10px; border-top: 1px solid #eee; font-size: 0.8rem; color: #374151; flex-wrap: wrap; }
+    .channel-checkbox { display: flex; align-items: center; gap: 4px; cursor: pointer; }
+    .channel-checkbox input { cursor: pointer; }
+    .fade-in-batch { animation: fadeIn 0.4s ease; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+    .automatiko-bar { background: linear-gradient(135deg, #2563EB, #4f46e5); color: #fff; text-align: center; padding: 10px 16px; border-radius: 10px; margin-bottom: 16px; font-size: 0.85rem; line-height: 1.4; }
+    .automatiko-bar a { color: #fff; text-decoration: underline; font-weight: 700; }
+    .automatiko-bar a:hover { opacity: 0.85; }
+    .automatiko-footer { text-align: center; font-size: 0.85rem; color: #6b7280; margin-top: 24px; padding-top: 16px; border-top: 1px solid #e5e7eb; line-height: 1.5; }
+    .automatiko-footer a { color: #2563EB; text-decoration: none; font-weight: 700; }
+    .automatiko-footer a:hover { text-decoration: underline; }
+    .about { font-size: 0.85rem; margin-top: 6px; }
+    .about summary { cursor: pointer; color: #2563EB; list-style: none; }
+    .about summary::-webkit-details-marker { display: none; }
+    .about p { color: #374151; margin: 6px 0 0; }
+    .card-cta { background: #fff; border: 1px solid #dbeafe; border-radius: 12px; padding: 14px 16px; margin: 16px 0; }
+    .card-cta .cta-title { font-weight: 700; font-size: 0.95rem; margin-bottom: 4px; }
+    .card-cta .cta-text { font-size: 0.85rem; color: #6b7280; margin-bottom: 10px; line-height: 1.4; }
+    .card-cta .cta-row { display: flex; gap: 8px; }
+    .card-cta input { flex: 1; font-size: 0.82rem; padding: 8px 10px; border: 1px solid #e5e7eb; border-radius: 8px; color: #374151; background: #f9fafb; }
+    .card-cta button { white-space: nowrap; background: #2563EB; color: #fff; border: none; padding: 8px 14px; border-radius: 8px; font-size: 0.82rem; font-weight: 600; cursor: pointer; }
+    .card-cta button:hover { background: #1d4ed8; }
+    .fetch-banner { display: none; align-items: center; gap: 9px; background: rgba(37,99,235,0.1); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); color: #1d4ed8; border: 1px solid rgba(37,99,235,0.22); border-radius: 10px; padding: 9px 14px; font-size: 0.82rem; line-height: 1.4; margin-bottom: 14px; }
+    .fetch-dot { width: 7px; height: 7px; border-radius: 50%; background: #2563EB; flex-shrink: 0; animation: fetchPulse 1.4s ease-in-out infinite; }
+    @keyframes fetchPulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.4; transform: scale(0.7); } }
+  </style>
+</head>
+<body>
+  <div class="automatiko-bar">✨ Этот сервис — бесплатный подарок от проекта <a href="https://automatiko.ru" target="_blank" rel="noopener">Automatiko.ru</a></div>
+  <div class="fetch-banner" id="fetchBanner"><span class="fetch-dot"></span><span>Собираем ваши отзывы с площадок — при первом подключении это может занять несколько минут. Страница обновится сама, ничего нажимать не нужно.</span></div>
+  <h1>{{ client.name }}</h1>
+  <div class="muted">Автодайджест отзывов · <a href="/d/{{ client.slug }}/sources" style="color:#2563EB">⚙ управлять площадками</a></div>
+  <details class="about">
+    <summary>ⓘ О проекте</summary>
+    <p>Автодайджест собирает ваши отзывы с Яндекс.Карт, 2ГИС и маркетплейсов в одном месте. Раз в сутки ИИ анализирует новые отзывы и готовит краткую сводку: главные жалобы, похвалы и тренд. Не нужно вручную проверять каждую площадку — просто открывайте эту страницу.</p>
+  </details>
+
+  <div class="card-cta">
+    <div class="cta-title">📇 Ваша публичная карточка «Индекс доверия»</div>
+    <div class="cta-text">Отдельная короткая страница с вашим рейтингом — можно показать клиентам в соцсетях или вставить на свой сайт. Обновляется сама, ничего вручную готовить не нужно.</div>
+    <div class="cta-row">
+      <input id="cardLinkInput" type="text" readonly value="https://reviews.automatiko.ru/card/{{ client.card_token }}">
+      <button type="button" onclick="copyCardLink()">Скопировать</button>
+    </div>
+  </div>
+
+  {% if digest %}
+  <div class="card">
+    <div class="rating">{{ digest.average_rating }} / 5</div>
+    <div class="muted">Саммари от {{ digest_date }}</div>
+
+    {% if digest.trend_summary %}
+    <p>{{ digest.trend_summary }}</p>
+    {% endif %}
+
+    {% if digest.top_complaints %}
+    <h3>Главные жалобы</h3>
+    <ul>{% for c in digest.top_complaints %}<li>{{ c }}</li>{% endfor %}</ul>
+    {% endif %}
+
+    {% if digest.top_praises %}
+    <h3>Главные похвалы</h3>
+    <ul>{% for p in digest.top_praises %}<li>{{ p }}</li>{% endfor %}</ul>
+    {% endif %}
+
+    {% if digest.notable_quotes %}
+    <h3>Цитаты</h3>
+    {% for q in digest.notable_quotes %}<div class="quote">«{{ q }}»</div>{% endfor %}
+    {% endif %}
+  </div>
+  {% else %}
+  <div class="card muted">Саммари ещё не готово — появится после первого ночного обновления.</div>
+  {% endif %}
+
+  {% if monthly_ratings.months %}
+  <div class="card">
+    <h3>Динамика оценок по месяцам</h3>
+    <div class="muted" style="font-size:0.8rem; margin-bottom:8px">Высота столбца — сколько было отзывов в месяц, цвет — доля по оценке</div>
+    <div class="rating-chart-wrap">
+      <div class="rating-axis">
+        <span id="axis-max">{{ monthly_ratings.max_total }}</span>
+        <span id="axis-75">{{ (monthly_ratings.max_total * 0.75) | round | int }}</span>
+        <span id="axis-50">{{ (monthly_ratings.max_total * 0.5) | round | int }}</span>
+        <span id="axis-25">{{ (monthly_ratings.max_total * 0.25) | round | int }}</span>
+        <span>0</span>
+      </div>
+      <div class="rating-chart-scroll">
+        <div class="rating-chart">
+          {% for tick in [0, 25, 50, 75, 100] %}
+          <div class="rating-gridline" style="bottom: {{ tick }}%"></div>
+          {% endfor %}
+          {% for m in monthly_ratings.months %}
+          <div class="rating-col" data-month="{{ m.month }}">
+            <div class="rating-bar-track">
+              <div class="rating-bar" style="height: {{ m.bar_height_pct }}%" title="{{ m.month }}: {{ m.total }} отзывов">
+                {% set ns = namespace(cum=0) %}
+                {% for star in [1, 2, 3, 4, 5] %}
+                {% if m.pct[star] > 0 %}
+                <div class="rating-seg star-{{ star }}" style="bottom: {{ ns.cum }}%; height: {{ m.pct[star] }}%"></div>
+                {% endif %}
+                {% set ns.cum = ns.cum + m.pct[star] %}
+                {% endfor %}
+              </div>
+            </div>
+            <div class="rating-col-label">{{ m.month[5:7] }}.{{ m.month[2:4] }}</div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+    <div class="rating-legend">
+      <span><i class="star-5"></i>5★</span>
+      <span><i class="star-4"></i>4★</span>
+      <span><i class="star-3"></i>3★</span>
+      <span><i class="star-2"></i>2★</span>
+      <span><i class="star-1"></i>1★</span>
+    </div>
+    {% if monthly_ratings.platforms|length > 1 %}
+    <div class="channel-filter" id="channel-filter">
+      {% for p in monthly_ratings.platforms %}
+      <label class="channel-checkbox">
+        <input type="checkbox" value="{{ p }}" checked> {{ platform_labels.get(p, p) }}
+      </label>
+      {% endfor %}
+    </div>
+    {% endif %}
+    <script id="monthly-ratings-data" type="application/json">{{ monthly_ratings_json | safe }}</script>
+  </div>
+  {% endif %}
+
+  <div class="card">
+    <h3>Последние отзывы</h3>
+    <div id="reviews-list">
+      {% if reviews %}
+        {% include "_reviews_fragment.html" %}
+      {% else %}
+        <div class="muted">Отзывов пока нет.</div>
+      {% endif %}
+    </div>
+    {% if has_more %}
+    <div style="text-align:center; margin-top:12px" id="load-more-wrap">
+      <a href="#" class="load-more" id="load-more-link" data-offset="{{ reviews|length }}" data-slug="{{ client.slug }}">Показать ещё</a>
+    </div>
+    {% endif %}
+  </div>
+
+  <footer class="automatiko-footer">
+    Сделано с теплом в <a href="https://automatiko.ru" target="_blank" rel="noopener">Automatiko</a> — мы делаем AI-инструменты, которые экономят время бизнесу, без воды и переплат. Заходите, у нас есть ещё чем поделиться 👋
+  </footer>
+
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/sw.js');
+    }
+
+    // Баннер "идёт сбор" — актуален в первые минуты после подключения площадок,
+    // дальше сбор идёт по ночам без клиента на странице, поэтому опрос не мешает.
+    (function pollFetchStatus() {
+      const banner = document.getElementById('fetchBanner');
+      let wasFetching = false;
+      async function check() {
+        try {
+          const resp = await fetch('/d/{{ client.slug }}/status');
+          const data = await resp.json();
+          banner.style.display = data.fetching ? 'flex' : 'none';
+          if (wasFetching && !data.fetching) {
+            location.reload();  // сбор закончился, пока клиент смотрел — подгружаем свежие данные
+            return;
+          }
+          wasFetching = data.fetching;
+        } catch (e) { /* тихо игнорируем — баннер просто не покажется */ }
+        setTimeout(check, 5000);
+      }
+      check();
+    })();
+
+    function copyCardLink() {
+      const input = document.getElementById('cardLinkInput');
+      navigator.clipboard.writeText(input.value).then(() => {
+        const btn = input.nextElementSibling;
+        const original = btn.textContent;
+        btn.textContent = 'Скопировано ✓';
+        setTimeout(() => { btn.textContent = original; }, 1500);
+      });
+    }
+
+    const loadMoreLink = document.getElementById('load-more-link');
+    if (loadMoreLink) {
+      const pageSize = 30;
+      loadMoreLink.addEventListener('click', async (e) => {
+        e.preventDefault();
+        const offset = parseInt(loadMoreLink.dataset.offset, 10);
+        const slug = loadMoreLink.dataset.slug;
+        const originalText = loadMoreLink.textContent;
+        loadMoreLink.textContent = 'Загрузка…';
+        try {
+          const resp = await fetch(`/d/${slug}/reviews?offset=${offset}`);
+          if (!resp.ok) throw new Error('bad response');
+          const html = await resp.text();
+          const batch = document.createElement('div');
+          batch.className = 'fade-in-batch';
+          batch.innerHTML = html;
+          const items = batch.querySelectorAll('.review');
+          document.getElementById('reviews-list').appendChild(batch);
+          loadMoreLink.dataset.offset = offset + items.length;
+          loadMoreLink.textContent = originalText;
+          if (items.length < pageSize) {
+            document.getElementById('load-more-wrap').remove();
+          }
+        } catch (err) {
+          loadMoreLink.textContent = 'Не получилось, попробуйте ещё раз';
+        }
+      });
+    }
+
+    // Фильтр по каналам на графике динамики оценок — пересчёт и перерисовка
+    // на клиенте по данным, встроенным сервером (без повторных запросов),
+    // см. get_monthly_rating_breakdown в app/db.py.
+    const ratingsDataEl = document.getElementById('monthly-ratings-data');
+    if (ratingsDataEl) {
+      const ratingsData = JSON.parse(ratingsDataEl.textContent);
+      const months = ratingsData.months;
+      const byMonthPlatform = ratingsData.by_month_platform;
+      const starClass = { 1: 'star-1', 2: 'star-2', 3: 'star-3', 4: 'star-4', 5: 'star-5' };
+      const cols = Array.from(document.querySelectorAll('.rating-chart .rating-col'));
+
+      function renderChart(selectedPlatforms) {
+        const totals = months.map((month) => {
+          const perPlatform = byMonthPlatform[month] || {};
+          const starCounts = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
+          selectedPlatforms.forEach((p) => {
+            const pc = perPlatform[p];
+            if (!pc) return;
+            for (let s = 1; s <= 5; s++) starCounts[s] += pc[s] || 0;
+          });
+          const total = starCounts[1] + starCounts[2] + starCounts[3] + starCounts[4] + starCounts[5];
+          return { total, starCounts };
+        });
+        const maxTotal = totals.reduce((m, t) => Math.max(m, t.total), 0);
+
+        cols.forEach((col, i) => {
+          const t = totals[i];
+          const bar = col.querySelector('.rating-bar');
+          const heightPct = maxTotal ? (t.total / maxTotal) * 100 : 0;
+          bar.style.height = heightPct + '%';
+          bar.title = `${months[i]}: ${t.total} отзывов`;
+          bar.innerHTML = '';
+          let cum = 0;
+          for (let s = 1; s <= 5; s++) {
+            const pct = t.total ? (t.starCounts[s] / t.total) * 100 : 0;
+            if (pct > 0) {
+              const seg = document.createElement('div');
+              seg.className = `rating-seg ${starClass[s]}`;
+              seg.style.bottom = cum + '%';
+              seg.style.height = pct + '%';
+              bar.appendChild(seg);
+            }
+            cum += pct;
+          }
+        });
+
+        const axisMax = document.getElementById('axis-max');
+        const axis75 = document.getElementById('axis-75');
+        const axis50 = document.getElementById('axis-50');
+        const axis25 = document.getElementById('axis-25');
+        if (axisMax) axisMax.textContent = maxTotal;
+        if (axis75) axis75.textContent = Math.round(maxTotal * 0.75);
+        if (axis50) axis50.textContent = Math.round(maxTotal * 0.5);
+        if (axis25) axis25.textContent = Math.round(maxTotal * 0.25);
+      }
+
+      const filterRoot = document.getElementById('channel-filter');
+      if (filterRoot) {
+        const checkboxes = Array.from(filterRoot.querySelectorAll('input[type=checkbox]'));
+        checkboxes.forEach((cb) => {
+          cb.addEventListener('change', () => {
+            const selected = checkboxes.filter((c) => c.checked).map((c) => c.value);
+            renderChart(selected);
+          });
+        });
+      }
+    }
+  </script>
+</body>
+</html>

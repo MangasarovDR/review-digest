@@ -1,0 +1,13 @@
+{% for r in reviews %}
+<div class="review">
+  <span class="platform-tag">{{ r.platform }}</span>
+  <strong>{{ r.author }}</strong>
+  <span class="stars" title="{{ r.rating }} из 5">{% for i in range(1, 6) %}<span class="star {{ 'filled' if i <= (r.rating | round | int) else '' }}">★</span>{% endfor %}</span>
+  <div class="review-meta">
+    {{ r.review_date[:10] }}
+    {% if r.source_label %}· <span class="source-label">{{ r.source_label }}</span>{% endif %}
+    {% if r.source_url %}· <a href="{{ r.source_url }}" target="_blank" rel="noopener" class="source-link">площадка ↗</a>{% endif %}
+  </div>
+  <div>{{ r.text }}</div>
+</div>
+{% endfor %}
